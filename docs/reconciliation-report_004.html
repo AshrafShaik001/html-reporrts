@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconciliation Automation Results</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.6/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- Recharts UMD -->
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div id="root" class="container mx-auto p-6"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function loadFileData() {
+      return `OrderId,CompanyName,AccountCode,CardHolderName,LastNumber,CardStatus,TotalCredit,TotalDebit,FXFee,TransactionBalance,CardBalance,Match,Link
+oi_7e7228f5-4f0b-4286-bd85-811b7cb02502,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Vipin Kumar,6773,ACTIVE,25,0,0,25,25,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_7e7228f5-4f0b-4286-bd85-811b7cb02502.csv
+oi_57384539-cddc-4189-a874-a3e44dfdfbae,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Stuart Wilson,4190,FROZEN,20,20,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_57384539-cddc-4189-a874-a3e44dfdfbae.csv
+oi_681e37a5-e294-486d-a3bf-a6bae1bdf7f6,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Verean Argauer,1351,CANCELLED,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_681e37a5-e294-486d-a3bf-a6bae1bdf7f6.csv
+oi_165b6e11-009e-4eee-a3d9-6f1993f05bf7,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Valentin Schutt,2804,ACTIVE,50,28.4,0,21.6,21.6,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_165b6e11-009e-4eee-a3d9-6f1993f05bf7.csv
+oi_f4796ce7-338f-4ac0-93fa-6abb67ef32c4,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan TEST,4812,ACTIVE,10,10,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_f4796ce7-338f-4ac0-93fa-6abb67ef32c4.csv
+oi_453c22af-1c9b-4bd3-9635-efa9a958c3e5,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Stuart Wilson Ltd,0310,CANCELLED,1240,1240,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_453c22af-1c9b-4bd3-9635-efa9a958c3e5.csv
+oi_c4c8407d-c2f4-45fe-a841-fdcce4fc3cf2,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Kealan Lennon,7616,ACTIVE,2616,2616,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_c4c8407d-c2f4-45fe-a841-fdcce4fc3cf2.csv
+oi_7b0945c4-199f-4538-89ae-870300e3df48,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Mastercard Demo,6040,CANCELLED,500,500,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_7b0945c4-199f-4538-89ae-870300e3df48.csv
+oi_f4ad20ce-adaa-4f00-8ee3-789d20dbb60b,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Valentina Reyes,6993,ACTIVE,350,334.19,-4.01,11.8,11.8,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_f4ad20ce-adaa-4f00-8ee3-789d20dbb60b.csv
+oi_3774fe05-e04e-4023-9b5b-53cdc141aa13,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan Demo,4250,ACTIVE,1000,1000,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions-2025-04-29T11-28-47-029Z/oi_3774fe05-e04e-4023-9b5b-53cdc141aa13.csv
+`;
+    }
+
+    const abbreviateNumber = (num) => {
+      if (isNaN(num) || num === null) return '0';
+      if (Math.abs(num) >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (Math.abs(num) >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toFixed(2);
+    };
+
+    const processAndCleanData = (data, headers) => {
+      console.log('Parsed CSV headers:', headers);
+      console.log('Sample row:', data[0]);
+      return data
+        .map(row => ({
+          OrderId: row['OrderId']?.trim() || '',
+          cardHolderName: row['CardHolderName']?.trim() || 'Unknown',
+          TotalCredit: parseFloat(row['TotalCredit']) || 0,
+          TotalDebit: parseFloat(row['TotalDebit']) || 0,
+          FXFee: parseFloat(row['FXFee']) || 0,
+          TransactionBalance: parseFloat(row['TransactionBalance']) || 0,
+          CardBalance: parseFloat(row['CardBalance']) || 0,
+          Match: row['Match']?.trim() || 'Unknown',
+          CompanyName: row['CompanyName']?.trim() || 'Unknown'
+        }))
+        .filter(row => row.OrderId);
+    };
+
+    // Error boundary component
+    class ErrorBoundary extends React.Component {
+      state = { error: null };
+      static getDerivedStateFromError(error) {
+        return { error: error.message };
+      }
+      componentDidCatch(error, info) {
+        console.error('Error caught by ErrorBoundary:', error, info);
+      }
+      render() {
+        if (this.state.error) {
+          return (
+            <div className="text-center text-red-600 p-6">
+              <h2 className="text-2xl font-bold">Error Rendering Report</h2>
+              <p>{this.state.error}</p>
+              <p>Please check the console for details.</p>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function ReconciliationReport() {
+      const [data, setData] = useState(null);
+      const [filter, setFilter] = useState('All'); // New filter state
+
+      useEffect(() => {
+        const csv = loadFileData();
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: value => value.trim().replace(/^"|"$/g, ''),
+          complete: ({ data, meta }) => {
+            const headers = meta.fields;
+            setData(processAndCleanData(data, headers));
+          },
+          error: (err) => console.error('Error parsing CSV:', err)
+        });
+      }, []);
+
+      if (!data) {
+        return (
+          <div className="text-center text-xl font-semibold text-gray-600">
+            Loading reconciliation results...
+          </div>
+        );
+      }
+
+      // Filter data based on selected filter
+      const filteredData = filter === 'All'
+        ? data
+        : data.filter(row => row.Match === filter);
+
+      const matchCounts = data.reduce((acc, { Match }) => {
+        acc[Match] = (acc[Match] || 0) + 1;
+        return acc;
+      }, {});
+      const pieData = Object.entries(matchCounts).map(([name, value]) => ({ name, value }));
+
+      const isRechartsAvailable = typeof Recharts !== 'undefined' && Recharts.ResponsiveContainer;
+
+      return (
+        <div className="bg-white shadow-lg rounded-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+            Reconciliation Automation Results
+          </h1>
+          <p className="text-gray-600 mb-4">
+            Analyzing {data.length} transactions. Key insights and visualizations below.
+          </p>
+
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Match Distribution</h2>
+          <div className="mb-8">
+            {isRechartsAvailable ? (
+              <Recharts.ResponsiveContainer width="100%" height={300}>
+                <Recharts.PieChart>
+                  <Recharts.Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Recharts.Cell
+                        key={`cell-${index}`}
+                        fill={entry.name === 'Match' ? '#10b981' : '#ef4444'}
+                      />
+                    ))}
+                  </Recharts.Pie>
+                  <Recharts.Tooltip formatter={(value) => `${value} transactions`} />
+                  <Recharts.Legend />
+                </Recharts.PieChart>
+              </Recharts.ResponsiveContainer>
+            ) : (
+              <div className="text-center text-red-600 p-4">
+                <p>Pie chart unavailable: Recharts library failed to load.</p>
+                <p>Match Counts: {JSON.stringify(matchCounts)}</p>
+              </div>
+            )}
+          </div>
+
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Detailed Results</h2>
+          <div className="mb-4">
+            <label htmlFor="filter" className="mr-2 text-sm font-medium text-gray-700">
+              Filter by Match Status:
+            </label>
+            <select
+              id="filter"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="p-2 border rounded-md text-sm text-gray-700"
+            >
+              <option value="All">All</option>
+              <option value="Match">Match</option>
+              <option value="Mismatch">Mismatch</option>
+            </select>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border">
+              <thead>
+                <tr>
+                  {['OrderId', 'CardHolderName', 'TotalCredit', 'TotalDebit', 'FXFee', 'TransactionBalance', 'CardBalance', 'Match', 'CompanyName'].map(header => (
+                    <th key={header} className="px-4 py-2 border text-left text-sm font-medium text-gray-700">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((row, index) => (
+                  <tr key={row.OrderId} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                    <td className="px-4 py-2 border text-sm">{row.OrderId}</td>
+                    <td className="px-4 py-2 border text-sm">{row.cardHolderName}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.TotalCredit.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.TotalDebit.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.FXFee.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.TransactionBalance.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.CardBalance.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">
+                      <a
+                        href={`reconciliation-results-transactions/${row.OrderId}.csv`}
+                        download
+                        className={row.Match === 'Match' ? 'text-green-600 hover:underline' : 'text-red-600 hover:underline'}
+                      >
+                        {row.Match}
+                      </a>
+                    </td>
+                    <td className="px-4 py-2 border text-sm">{row.CompanyName}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <ErrorBoundary>
+        <ReconciliationReport />
+      </ErrorBoundary>
+    );
+  </script>
+</body>
+</html>
