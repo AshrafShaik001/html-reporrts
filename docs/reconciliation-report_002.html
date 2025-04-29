@@ -1,0 +1,272 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Reconciliation Automation Results</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prop-types@15.8.1/prop-types.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.25.6/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <!-- Recharts UMD -->
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
+</head>
+<body class="bg-gray-100 font-sans">
+  <div id="root" class="container mx-auto p-6"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    function loadFileData() {
+      return `OrderId,CompanyName,AccountCode,CardHolderName,LastNumber,CardStatus,TotalCredit,TotalDebit,FXFee,TransactionBalance,CardBalance,Match,Link
+oi_7e7228f5-4f0b-4286-bd85-811b7cb02502,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Vipin Kumar,6773,ACTIVE,25,0,0,25,25,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_7e7228f5-4f0b-4286-bd85-811b7cb02502.csv
+oi_57384539-cddc-4189-a874-a3e44dfdfbae,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Stuart Wilson,4190,FROZEN,20,20,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_57384539-cddc-4189-a874-a3e44dfdfbae.csv
+oi_681e37a5-e294-486d-a3bf-a6bae1bdf7f6,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Verean Argauer,1351,CANCELLED,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_681e37a5-e294-486d-a3bf-a6bae1bdf7f6.csv
+oi_165b6e11-009e-4eee-a3d9-6f1993f05bf7,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Valentin Schutt,2804,ACTIVE,50,28.4,0,21.6,21.6,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_165b6e11-009e-4eee-a3d9-6f1993f05bf7.csv
+oi_f4796ce7-338f-4ac0-93fa-6abb67ef32c4,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan TEST,4812,ACTIVE,10,10,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_f4796ce7-338f-4ac0-93fa-6abb67ef32c4.csv
+oi_453c22af-1c9b-4bd3-9635-efa9a958c3e5,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Stuart Wilson Ltd,0310,CANCELLED,1240,1240,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_453c22af-1c9b-4bd3-9635-efa9a958c3e5.csv
+oi_c4c8407d-c2f4-45fe-a841-fdcce4fc3cf2,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Kealan Lennon,7616,ACTIVE,2616,2616,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_c4c8407d-c2f4-45fe-a841-fdcce4fc3cf2.csv
+oi_7b0945c4-199f-4538-89ae-870300e3df48,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Mastercard Demo,6040,CANCELLED,500,500,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_7b0945c4-199f-4538-89ae-870300e3df48.csv
+oi_f4ad20ce-adaa-4f00-8ee3-789d20dbb60b,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Valentina Reyes,6993,ACTIVE,350,334.19,-4.01,11.8,11.8,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_f4ad20ce-adaa-4f00-8ee3-789d20dbb60b.csv
+oi_3774fe05-e04e-4023-9b5b-53cdc141aa13,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan Demo,4250,ACTIVE,1000,1000,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_3774fe05-e04e-4023-9b5b-53cdc141aa13.csv
+oi_412f8547-aac3-41ca-b2d5-20666a3e4dd3,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Stephen Pettigrew,4793,ACTIVE,1750,1571.8099999999997,-24.29,153.9,153.9,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_412f8547-aac3-41ca-b2d5-20666a3e4dd3.csv
+oi_407ecef9-1f2c-4ffb-860e-fda033bcfd8a,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Sergey Suslov,8755,ACTIVE,500.75,453.56,0,47.19,47.19,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_407ecef9-1f2c-4ffb-860e-fda033bcfd8a.csv
+oi_bc5e3100-2f5b-4b13-9c56-99e689dab98d,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Alan Beatty,9840,ACTIVE,3860,3860,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_bc5e3100-2f5b-4b13-9c56-99e689dab98d.csv
+oi_5ad8eb62-7f53-460d-8c63-9ec524af3978,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Camila Romani,2958,CANCELLED,200,200,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_5ad8eb62-7f53-460d-8c63-9ec524af3978.csv
+oi_61b29c11-6d0a-41b0-a827-5f02d71d3912,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Chloe French,8945,ACTIVE,50,13.1,0,36.9,36.9,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_61b29c11-6d0a-41b0-a827-5f02d71d3912.csv
+oi_730545e9-0d6e-4ec1-8517-c50283c5f8b1,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Danielle Maloney,2271,ACTIVE,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_730545e9-0d6e-4ec1-8517-c50283c5f8b1.csv
+oi_9cfccad9-432d-4256-a470-375c40c0147c,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Ray Brash,5104,ACTIVE,2333.32,2323.86,-9.46,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_9cfccad9-432d-4256-a470-375c40c0147c.csv
+oi_9046e9bb-0232-40a2-a8a2-00dc34c4cdf1,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Sophie Doyle,5097,ACTIVE,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_9046e9bb-0232-40a2-a8a2-00dc34c4cdf1.csv
+oi_4e125430-7675-4319-adf9-37754a968f5f,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Kevin Finn,5649,CANCELLED,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_4e125430-7675-4319-adf9-37754a968f5f.csv
+oi_c5cd0af5-cf47-44a3-b851-383c7d9ab2b9,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Ivano Cafolla,9910,ACTIVE,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_c5cd0af5-cf47-44a3-b851-383c7d9ab2b9.csv
+oi_b2c0f523-696b-4279-90c0-9f4091057a98,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Colm O'Reilly,7709,CANCELLED,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_b2c0f523-696b-4279-90c0-9f4091057a98.csv
+oi_b1bd210d-fbc1-46e8-bde1-ec2542bd9140,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Acerina Lynch,5790,CANCELLED,50,49.339999999999996,-0.66,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_b1bd210d-fbc1-46e8-bde1-ec2542bd9140.csv
+oi_424d54c5-1b32-48b0-9901-9d311fbbf57e,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Greg Casey,8236,CANCELLED,5387.049999999999,5364.380000000001,-22.669999999999998,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_424d54c5-1b32-48b0-9901-9d311fbbf57e.csv
+oi_120b5c21-de98-4627-b3b5-d33d30da42a3,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Lea Cent,7293,CANCELLED,6784.71,6600,-184.71,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_120b5c21-de98-4627-b3b5-d33d30da42a3.csv
+oi_20352a7a-1d86-461d-81e9-6a3dbbac36e1,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Alan Beatty,6069,ACTIVE,6287,6287,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_20352a7a-1d86-461d-81e9-6a3dbbac36e1.csv
+oi_40847b63-82d4-4f65-9297-4fc417a11bc0,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan,9687,ACTIVE,100,100,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_40847b63-82d4-4f65-9297-4fc417a11bc0.csv
+oi_7a07b510-f93d-4b62-b424-51a331cfe7ae,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Nick Reilly,3687,ACTIVE,13051,13020.009999999998,-22.880000000000003,8.11,8.11,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_7a07b510-f93d-4b62-b424-51a331cfe7ae.csv
+oi_6836d689-fee7-432d-8f08-2413ead0a78d,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Tuan Tran,0874,ACTIVE,20,19.78,-0.22,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_6836d689-fee7-432d-8f08-2413ead0a78d.csv
+oi_c9be44cb-939e-4a89-b018-2c58adc2d2fa,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Penny Myler,5263,ACTIVE,655.14,419.73,-0.67,234.74,234.74,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_c9be44cb-939e-4a89-b018-2c58adc2d2fa.csv
+oi_904ab51e-0d82-4b89-ac73-fab46f53f0bf,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Marc Frappier,1750,ACTIVE,2000,1175.81,0,824.19,824.19,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_904ab51e-0d82-4b89-ac73-fab46f53f0bf.csv
+oi_36c9f05f-a9b4-4d3f-98a3-c05fa94a7e4a,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Ray Brash,5519,ACTIVE,50,50,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_36c9f05f-a9b4-4d3f-98a3-c05fa94a7e4a.csv
+oi_8501de69-79ef-40e1-b178-94958475d3f6,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Penny Myler,4135,ACTIVE,8500,8500,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_8501de69-79ef-40e1-b178-94958475d3f6.csv
+oi_f6f8dd94-8af3-4d77-a984-61a32894d785,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Deryck Fay test KYB,3646,CANCELLED,198.01,195.21,-2.9399999999999995,-0.14,-0.14,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_f6f8dd94-8af3-4d77-a984-61a32894d785.csv
+oi_9600ccf3-3c45-4399-8bd3-5add9ba8664f,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Carla Baltazar test 4,2471,CANCELLED,160,160,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_9600ccf3-3c45-4399-8bd3-5add9ba8664f.csv
+oi_8e75242f-eea4-4ddf-8971-ddd642dab2a5,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Carla Baltazar,8374,CANCELLED,160,160,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_8e75242f-eea4-4ddf-8971-ddd642dab2a5.csv
+oi_d917f0ac-fa0d-41a6-8da6-397e915fceb7,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Laura Smyth,7169,ACTIVE,200,152.92999999999998,-4.25,42.82,42.82,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_d917f0ac-fa0d-41a6-8da6-397e915fceb7.csv
+oi_427f2df7-5e2c-418b-8e54-b1c90f64c163,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan,8088,ACTIVE,18575,18575,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_427f2df7-5e2c-418b-8e54-b1c90f64c163.csv
+oi_143c2a18-1b95-4317-b07f-3dc64727461e,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,KL Subscriptions,2307,CANCELLED,2001.94,2001.9400000000003,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_143c2a18-1b95-4317-b07f-3dc64727461e.csv
+oi_164fa5d3-6c95-4620-91d3-c2835b577add,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Kealan Lennon,5372,CANCELLED,21677.16,21652.409999999993,-24.75,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_164fa5d3-6c95-4620-91d3-c2835b577add.csv
+oi_38b3c479-0755-4b1c-ba80-abc62b3b037e,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Caoimhe Lennon,3826,ACTIVE,250,250,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_38b3c479-0755-4b1c-ba80-abc62b3b037e.csv
+oi_97eaf6af-ed2b-4440-aac4-da91e65dfaaf,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Aaron Harvey,8994,ACTIVE,293.58,293.58,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_97eaf6af-ed2b-4440-aac4-da91e65dfaaf.csv
+oi_916924ad-54c3-4dee-b4a6-7436110d94c0,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Alan Beatty,6856,CANCELLED,614971.1499999999,614971.1499999999,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_916924ad-54c3-4dee-b4a6-7436110d94c0.csv
+oi_42c2b13f-c792-40e0-b4f1-37f72512fac6,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Conor Wogan,3276,ACTIVE,500.92,500.65000000000003,-0.27,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_42c2b13f-c792-40e0-b4f1-37f72512fac6.csv
+oi_9a5b5c4c-c0f7-417d-b018-62cef49bac3b,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Lea Cent,1585,CANCELLED,4671.42,4663.92,0,7.5,0,Mismatch,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_9a5b5c4c-c0f7-417d-b018-62cef49bac3b.csv
+oi_51e91047-93c4-41e8-a5c5-8e1214e2decf,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Geraldine Tuohy,4304,ACTIVE,1368,1368,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_51e91047-93c4-41e8-a5c5-8e1214e2decf.csv
+oi_7515609d-9bd5-403e-8269-e2ad12c21122,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Geraldine Tuohy,5416,CANCELLED,1351.86,1324.9499999999998,-26.910000000000004,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_7515609d-9bd5-403e-8269-e2ad12c21122.csv
+oi_82c7d148-87f0-47aa-991e-1ad49010a39f,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Louise Callanan,4949,ACTIVE,15,15,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_82c7d148-87f0-47aa-991e-1ad49010a39f.csv
+oi_eabc283c-9a1e-4bc3-b514-1ee5e8887a7e,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Geraldine Tuohy,4521,CANCELLED,191.89,191.89,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_eabc283c-9a1e-4bc3-b514-1ee5e8887a7e.csv
+oi_7ffe6fbd-52b7-4fa9-a66a-8ced906e80b3,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Geraldine Tuohy,3765,CANCELLED,190,190,0,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_7ffe6fbd-52b7-4fa9-a66a-8ced906e80b3.csv
+oi_dc777269-f8c8-4b02-bd9e-92aedba15014,Internal CleverCards Business Card EUR,CLEVERCARDS_IE,Madalina Luca,5934,CANCELLED,1064,1039.52,-24.48,0,0,Match,/Users/shaikashraf/Desktop/testing/be-test-data/results/reconciliation-results-transactions/oi_dc777269-f8c8-4b02-bd9e-92aedba15014.csv
+`;
+    }
+
+    const abbreviateNumber = (num) => {
+      if (isNaN(num) || num === null) return '0';
+      if (Math.abs(num) >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (Math.abs(num) >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toFixed(2);
+    };
+
+    const processAndCleanData = (data, headers) => {
+      console.log('Parsed CSV headers:', headers);
+      console.log('Sample row:', data[0]);
+      return data
+        .map(row => ({
+          OrderId: row['OrderId']?.trim() || '',
+          cardHolderName: row['CardHolderName']?.trim() || 'Unknown',
+          TotalCredit: parseFloat(row['TotalCredit']) || 0,
+          TotalDebit: parseFloat(row['TotalDebit']) || 0,
+          FXFee: parseFloat(row['FXFee']) || 0,
+          TransactionBalance: parseFloat(row['TransactionBalance']) || 0,
+          CardBalance: parseFloat(row['CardBalance']) || 0,
+          Match: row['Match']?.trim() || 'Unknown',
+          CompanyName: row['CompanyName']?.trim() || 'Unknown'
+        }))
+        .filter(row => row.OrderId);
+    };
+
+    // Error boundary component
+    class ErrorBoundary extends React.Component {
+      state = { error: null };
+      static getDerivedStateFromError(error) {
+        return { error: error.message };
+      }
+      componentDidCatch(error, info) {
+        console.error('Error caught by ErrorBoundary:', error, info);
+      }
+      render() {
+        if (this.state.error) {
+          return (
+            <div className="text-center text-red-600 p-6">
+              <h2 className="text-2xl font-bold">Error Rendering Report</h2>
+              <p>{this.state.error}</p>
+              <p>Please check the console for details.</p>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    function ReconciliationReport() {
+      const [data, setData] = useState(null);
+      const [filter, setFilter] = useState('All'); // New filter state
+
+      useEffect(() => {
+        const csv = loadFileData();
+        Papa.parse(csv, {
+          header: true,
+          skipEmptyLines: true,
+          transformHeader: header => header.trim().replace(/^"|"$/g, ''),
+          transform: value => value.trim().replace(/^"|"$/g, ''),
+          complete: ({ data, meta }) => {
+            const headers = meta.fields;
+            setData(processAndCleanData(data, headers));
+          },
+          error: (err) => console.error('Error parsing CSV:', err)
+        });
+      }, []);
+
+      if (!data) {
+        return (
+          <div className="text-center text-xl font-semibold text-gray-600">
+            Loading reconciliation results...
+          </div>
+        );
+      }
+
+      // Filter data based on selected filter
+      const filteredData = filter === 'All'
+        ? data
+        : data.filter(row => row.Match === filter);
+
+      const matchCounts = data.reduce((acc, { Match }) => {
+        acc[Match] = (acc[Match] || 0) + 1;
+        return acc;
+      }, {});
+      const pieData = Object.entries(matchCounts).map(([name, value]) => ({ name, value }));
+
+      const isRechartsAvailable = typeof Recharts !== 'undefined' && Recharts.ResponsiveContainer;
+
+      return (
+        <div className="bg-white shadow-lg rounded-lg p-8">
+          <h1 className="text-3xl font-bold text-gray-800 mb-6">
+            Reconciliation Automation Results
+          </h1>
+          <p className="text-gray-600 mb-4">
+            Analyzing {data.length} transactions. Key insights and visualizations below.
+          </p>
+
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Match Distribution</h2>
+          <div className="mb-8">
+            {isRechartsAvailable ? (
+              <Recharts.ResponsiveContainer width="100%" height={300}>
+                <Recharts.PieChart>
+                  <Recharts.Pie
+                    data={pieData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(1)}%`}
+                  >
+                    {pieData.map((entry, index) => (
+                      <Recharts.Cell
+                        key={`cell-${index}`}
+                        fill={entry.name === 'Match' ? '#10b981' : '#ef4444'}
+                      />
+                    ))}
+                  </Recharts.Pie>
+                  <Recharts.Tooltip formatter={(value) => `${value} transactions`} />
+                  <Recharts.Legend />
+                </Recharts.PieChart>
+              </Recharts.ResponsiveContainer>
+            ) : (
+              <div className="text-center text-red-600 p-4">
+                <p>Pie chart unavailable: Recharts library failed to load.</p>
+                <p>Match Counts: {JSON.stringify(matchCounts)}</p>
+              </div>
+            )}
+          </div>
+
+          <h2 className="text-2xl font-semibold text-gray-700 mb-4">Detailed Results</h2>
+          <div className="mb-4">
+            <label htmlFor="filter" className="mr-2 text-sm font-medium text-gray-700">
+              Filter by Match Status:
+            </label>
+            <select
+              id="filter"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              className="p-2 border rounded-md text-sm text-gray-700"
+            >
+              <option value="All">All</option>
+              <option value="Match">Match</option>
+              <option value="Mismatch">Mismatch</option>
+            </select>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full bg-white border">
+              <thead>
+                <tr>
+                  {['OrderId', 'CardHolderName', 'TotalCredit', 'TotalDebit', 'FXFee', 'TransactionBalance', 'CardBalance', 'Match', 'CompanyName'].map(header => (
+                    <th key={header} className="px-4 py-2 border text-left text-sm font-medium text-gray-700">
+                      {header}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((row, index) => (
+                  <tr key={row.OrderId} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
+                    <td className="px-4 py-2 border text-sm">{row.OrderId}</td>
+                    <td className="px-4 py-2 border text-sm">{row.cardHolderName}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.TotalCredit.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.TotalDebit.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.FXFee.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.TransactionBalance.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">€{row.CardBalance.toFixed(2)}</td>
+                    <td className="px-4 py-2 border text-sm">
+                      <a
+                        href={`reconciliation-results-transactions/${row.OrderId}.csv`}
+                        download
+                        className={row.Match === 'Match' ? 'text-green-600 hover:underline' : 'text-red-600 hover:underline'}
+                      >
+                        {row.Match}
+                      </a>
+                    </td>
+                    <td className="px-4 py-2 border text-sm">{row.CompanyName}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <ErrorBoundary>
+        <ReconciliationReport />
+      </ErrorBoundary>
+    );
+  </script>
+</body>
+</html>
