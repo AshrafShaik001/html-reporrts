@@ -1,0 +1,2 @@
+txnExternalId,location,description,status,currency,amount,txnAmount,txnCurrency,timestamp,lastNumbers,cardHolderName,transactionDate,type,merchantCategoryName,mcc,walletName,authIndicator,cardAcceptorName,authCode,note,receiptIds,receiptMatchingStatus,fee,companyAccountingCode,companyAccountingCodeName,balance,credit,debit,userId,hasThreeDs,label,reviewStatus
+"c814b82e-fed6-4f84-8e54-418d606eb2e8",,"Card Activated","APPROVED","EUR","25",,,"2025-04-10T09:35:48Z","6773","Vipi Kumar",,"CARD_ACTIVATION",,,,"OTHERS",,,,"[]","NULL",,,,,"25",,,,"Conference in UK","NOT_STARTED"
