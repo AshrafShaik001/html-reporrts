@@ -1,0 +1,3 @@
+txnExternalId,location,description,status,currency,amount,txnAmount,txnCurrency,timestamp,lastNumbers,cardHolderName,transactionDate,type,merchantCategoryName,mcc,walletName,authIndicator,cardAcceptorName,authCode,note,receiptIds,receiptMatchingStatus,fee,companyAccountingCode,companyAccountingCodeName,balance,credit,debit,userId,hasThreeDs,label,reviewStatus
+"24c75d9e-210b-5389-6d62-f70af4be463e",,"Funds removed from card","APPROVED","EUR","-20",,,"2024-01-08T16:57:31Z","5400","Alan Hosey",,"ADJUSTMENT",,,,"OTHERS",,,,"[]","NULL",,,,,,"20",,,"","NOT_STARTED"
+"b61b4180-3d5e-8ad3-92e9-33a9e31b2803",,"Card Activated","APPROVED","EUR","20",,,"2024-01-08T13:01:26Z","5400","Alan Hosey",,"CARD_ACTIVATION",,,,"OTHERS",,,,"[]","NULL",,,,,"20",,,,"","NOT_STARTED"
